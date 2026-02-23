@@ -734,6 +734,16 @@
                     <label for="eta" class="required">Estimated Time of Arrival (ETA)</label>
                     <input type="datetime-local" id="eta" class="form-control" required>
                 </div>
+
+                <!-- NEW FIELDS: Agent Name and Voyage No. (optional) -->
+                <div class="form-group">
+                    <label for="agentName">Agent Name</label>
+                    <input type="text" id="agentName" class="form-control" placeholder="Enter agent name (optional)">
+                </div>
+                <div class="form-group">
+                    <label for="voyageNo">Voyage No.</label>
+                    <input type="text" id="voyageNo" class="form-control" placeholder="Enter voyage number (optional)">
+                </div>
                 
                 <!-- Document Categories -->
                 <h3 style="color: var(--primary); margin: 3rem 0 1.5rem;">Required Documents</h3>
@@ -953,7 +963,7 @@
         ];
         
         // Google Apps Script Web App URL (YOUR DEPLOYMENT URL)
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxnPbHRjOnK_hmZoYqSQKF_BrgeZSVKv4wIAS4_eCG-VSyG_K12HuzeCjzwHYqPWvg9tA/exec';
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxqG4IUCo0BNQgmWyV7bMeBlyLoOC53Pshvo1fQQ8uyi_fcoZubEUlQkFXueo9ONtr2/exec';
         
         // Mobile Menu Toggle
         mobileMenuBtn.addEventListener('click', () => {
@@ -1125,6 +1135,10 @@
             const vesselName = document.getElementById('vesselName').value.trim();
             const eta = document.getElementById('eta').value;
             
+            // NEW: get optional fields
+            const agentName = document.getElementById('agentName').value.trim();
+            const voyageNo = document.getElementById('voyageNo').value.trim();
+            
             if (!vesselName || !eta) {
                 showStatus('Please fill in all required fields (Vessel Name and ETA)', 'error');
                 return;
@@ -1158,10 +1172,12 @@
             
             try {
                 console.log('📦 Starting file preparation...');
-                // Prepare form data
+                // Prepare form data (now includes agentName and voyageNo)
                 const formData = {
                     vesselName: vesselName,
                     eta: eta,
+                    agentName: agentName || "",   // send empty string if not provided
+                    voyageNo: voyageNo || "",
                     submissionDate: new Date().toISOString(),
                     submissionId: 'PH-' + Date.now() + '-' + Math.random().toString(36).substr(2, 6).toUpperCase(),
                     documents: {}
@@ -1170,6 +1186,8 @@
                 console.log('📋 Form data created:', formData.submissionId);
                 console.log('Vessel:', vesselName);
                 console.log('ETA:', eta);
+                console.log('Agent:', agentName || 'Not provided');
+                console.log('Voyage No.:', voyageNo || 'Not provided');
                 
                 // Convert only uploaded files to base64
                 let fileCount = 0;
@@ -1222,7 +1240,9 @@
                     `${fileCount} document(s) submitted successfully\n` +
                     `Submission ID: ${formData.submissionId}\n` +
                     `Vessel: ${vesselName}\n` +
-                    `ETA: ${new Date(eta).toLocaleString()}\n\n` +
+                    `ETA: ${new Date(eta).toLocaleString()}\n` +
+                    `Agent: ${agentName || 'Not provided'}\n` +
+                    `Voyage No.: ${voyageNo || 'Not provided'}\n\n` +
                     `📧 Email with all attachments has been sent to: porthealthdsm@gmail.com\n\n` +
                     `Your documents are now being processed by Port Health.\n` +
                     `Processing typically takes 2-4 business hours.\n\n` +
